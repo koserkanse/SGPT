@@ -101,6 +101,11 @@ services and external app connections are not provisioned by the overlay.
 
 ## Boundaries and maintenance
 
+The twice-weekly research, evaluated instruction-skill upgrades and retained
+learning workflow is described in [Capability improvement](EVOLUTION.md).
+The broader adapter roadmap and topic priorities remain in
+[ADR-001](evolution/ADR-001.md) and the [program definition](evolution/program.yaml).
+
 - LibreChat JWT, same-origin checks, and strict per-user configuration run before the bridge.
 - Regular runtime thread IDs are scoped to the authenticated user and tenant. Global
   SDK history, inspector, and administration routes are not exposed.

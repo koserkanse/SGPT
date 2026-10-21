@@ -1,0 +1,24 @@
+# Merge this block with an existing Copilot/OpenDots configuration.
+version: 1.3.17
+copilot:
+  enabled: true
+  apiKey: '${COPILOT_API_KEY}'
+  evolution:
+    enabled: true
+    ownerUserId: '${OPENDOTS_OWNER_USER_ID}'
+    timezone: Europe/Istanbul
+    days: [1, 4]
+    hour: 9
+    minute: 0
+    apiKey: '${EVOLUTION_API_KEY}'
+    model: gpt-4.1-mini
+    baseUrl: https://api.openai.com/v1
+    githubToken: '${EVOLUTION_GITHUB_TOKEN}'
+    # For this macOS local setup, an already authenticated gh CLI can be used:
+    # githubCliPath: /opt/homebrew/bin/gh
+    libreOfficePath: /Applications/LibreOffice.app/Contents/MacOS/soffice
+    pdfTextPath: /opt/homebrew/bin/pdftotext
+    pdfImagePath: /opt/homebrew/bin/pdftoppm
+    candidatesPerTopic: 1
+    minimumScore: 0.85
+    improvementMargin: 0.05

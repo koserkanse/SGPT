@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import OpenSidebar from '~/components/Chat/Menus/OpenSidebar';
 import { useAuthContext, useLocalize } from '~/hooks';
 import { useCopilotStatus } from './api';
+import Evolution from './Evolution';
 import Chat from './Chat';
 
 function Dots({
@@ -112,6 +113,7 @@ export default function Copilot() {
   const [search, setSearch] = useSearchParams();
   const [session, setSession] = useState(() => crypto.randomUUID());
   const dots = search.get('mode') === 'dots';
+  const evolution = search.get('mode') === 'evolution';
   if (status.isLoading)
     return (
       <div className="m-auto" role="status">
@@ -129,7 +131,11 @@ export default function Copilot() {
   if (!status.data?.enabled || !token || !user)
     return <p className="m-auto p-6">{localize('com_copilot_disabled')}</p>;
   let content;
-  if (dots && status.data.openDots) {
+  if (evolution && status.data.evolution) {
+    content = <Evolution userId={user.id} />;
+  } else if (evolution) {
+    content = <p className="m-auto p-6">{localize('com_copilot_disabled')}</p>;
+  } else if (dots && status.data.openDots) {
     content = <Dots token={token} userId={user.id} generativeUI={status.data.generativeUI} />;
   } else if (dots) {
     content = <p className="m-auto p-6">{localize('com_copilot_disabled')}</p>;
@@ -159,8 +165,8 @@ export default function Copilot() {
         <OpenSidebar className="size-9 shrink-0 md:hidden" />
         <h1 className="mr-auto text-lg font-semibold">{localize('com_copilot_title')}</h1>
         <Button
-          variant={!dots ? 'default' : 'outline'}
-          aria-pressed={!dots}
+          variant={!dots && !evolution ? 'default' : 'outline'}
+          aria-pressed={!dots && !evolution}
           onClick={() => setSearch({})}
         >
           {localize('com_copilot_title')}
@@ -174,7 +180,16 @@ export default function Copilot() {
             {localize('com_copilot_dots')}
           </Button>
         )}
-        {!dots && (
+        {status.data.evolution && (
+          <Button
+            variant={evolution ? 'default' : 'outline'}
+            aria-pressed={evolution}
+            onClick={() => setSearch({ mode: 'evolution' })}
+          >
+            {localize('com_evolution_title')}
+          </Button>
+        )}
+        {!dots && !evolution && (
           <Button variant="outline" onClick={() => setSession(crypto.randomUUID())}>
             {localize('com_copilot_new_chat')}
           </Button>

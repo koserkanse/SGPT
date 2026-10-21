@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { evolutionConfigSchema } from './evolution';
 
 export const copilotConfigSchema = z
   .object({
@@ -13,6 +14,7 @@ export const copilotConfigSchema = z
     maxThreads: z.number().int().min(1).max(10000).default(100),
     maxRunsPerThread: z.number().int().min(1).max(100).default(20),
     maxHistoryBytes: z.number().int().min(1000000).max(1000000000).default(20000000),
+    evolution: evolutionConfigSchema.optional(),
     openDots: z
       .object({
         url: z.string().url(),
@@ -30,6 +32,7 @@ export type CopilotStatus = {
   ready: boolean;
   generativeUI: boolean;
   openDots: boolean;
+  evolution?: boolean;
   threadPrefix: string;
 };
 export type DotWorkspace = {

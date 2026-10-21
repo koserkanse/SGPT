@@ -1,5 +1,6 @@
 export enum QueryKeys {
   copilotStatus = 'copilotStatus',
+  evolution = 'evolution',
   dotWorkspace = 'dotWorkspace',
   dotReview = 'dotReview',
   dotApproval = 'dotApproval',
@@ -131,6 +132,7 @@ export const DynamicQueryKeys = {
 } as const;
 
 export enum MutationKeys {
+  evolution = 'evolution',
   resetToolApprovalGrants = 'resetToolApprovalGrants',
   subagentControl = 'subagentControl',
   cancelBackgroundTasks = 'cancelBackgroundTasks',

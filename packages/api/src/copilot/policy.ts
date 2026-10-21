@@ -15,6 +15,16 @@ export function resolveCopilotConfig(
     return result && !result.includes('${') && result !== 'user_provided' ? result : undefined;
   };
   config.apiKey = config.apiKey ? resolve(config.apiKey) : undefined;
+  if (config.evolution) {
+    config.evolution.apiKey = config.evolution.apiKey
+      ? resolve(config.evolution.apiKey)
+      : config.apiKey;
+    config.evolution.githubToken = config.evolution.githubToken
+      ? resolve(config.evolution.githubToken)
+      : undefined;
+    config.evolution.ownerUserId = resolve(config.evolution.ownerUserId) ?? '';
+    if (!config.evolution.ownerUserId) config.evolution.enabled = false;
+  }
   if (config.openDots) {
     const token = resolve(config.openDots.token);
     const owner = resolve(config.openDots.ownerUserId);

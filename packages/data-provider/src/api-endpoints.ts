@@ -22,6 +22,7 @@ if (BASE_URL && BASE_URL.endsWith('/')) {
 export const apiBaseUrl = () => BASE_URL;
 
 export const copilot = () => `${BASE_URL}/api/copilot`;
+export const evolution = () => `${copilot()}/evolution`;
 export const dotWorkspace = () => `${copilot()}/dots/workspace`;
 export const dotConversations = () => `${copilot()}/dots/conversations`;
 export const dotConversation = (id: string) => `${dotConversations()}/${encodeURIComponent(id)}`;

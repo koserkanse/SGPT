@@ -4,6 +4,8 @@ export * from './common';
 export * from './crypto';
 export * from './schema';
 export * from './utils';
+export { createEvolutionStore } from './methods/evolution';
+export type { EvolutionStore } from './methods/evolution';
 export { createModels } from './models';
 export {
   createMethods,

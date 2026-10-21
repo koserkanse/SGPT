@@ -14,6 +14,21 @@ const config = copilotConfigSchema.parse({
   openDots: { url: 'http://127.0.0.1:4310', ownerUserId: owner.id, token: 'a'.repeat(32) },
 });
 
+test('evolution resolves its own secrets, inherits the model key and disables unresolved owners', () => {
+  const input = {
+    enabled: true,
+    apiKey: 'model-fixture',
+    evolution: { enabled: true, ownerUserId: '${OWNER}', githubToken: '${GITHUB}' },
+  };
+  const resolver = (value: string) =>
+    ({ '${OWNER}': owner.id, '${GITHUB}': 'github-fixture' })[value] ?? value;
+  const resolved = resolveCopilotConfig(input, resolver)!;
+  expect(resolved.evolution?.apiKey).toBe('model-fixture');
+  expect(resolved.evolution?.githubToken).toBe('github-fixture');
+  expect(resolved.evolution?.ownerUserId).toBe(owner.id);
+  expect(resolveCopilotConfig(input, (value) => value)?.evolution?.enabled).toBe(false);
+});
+
 test('Copilot stays opt-in and grants administrators or named users only', () => {
   expect(canUseCopilot(undefined, owner)).toBe(false);
   expect(canUseCopilot(config, owner)).toBe(true);

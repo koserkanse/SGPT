@@ -4,6 +4,7 @@ export * from './bedrock';
 export * from './balance';
 export * from './config';
 export * from './copilot';
+export * from './evolution';
 export * from './footer';
 export * from './theme';
 export * from './langchain';

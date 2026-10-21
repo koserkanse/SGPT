@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Router } from 'express';
 import { once } from 'node:events';
 import { rateLimit } from 'express-rate-limit';
-import type { AppConfig } from '@librechat/data-schemas';
+import type { AppConfig, EvolutionStore } from '@librechat/data-schemas';
 import type { Request, Response } from 'express';
 import type { CopilotUser } from './policy';
 import {
@@ -13,6 +13,11 @@ import {
   isDotRequestAllowed,
   isRuntimeRequestAllowed,
 } from './policy';
+import { startEvolutionScheduler } from '../evolution/scheduler';
+import { createEvolutionService } from '../evolution/service';
+import { createEvolutionRouter } from '../evolution/handlers';
+import { registerShutdownTask } from '~/app/shutdown';
+import { evolutionTools } from '../evolution/tools';
 import { createCopilotHandler } from './runtime';
 
 type CopilotRequest = Request & { config?: AppConfig };
@@ -28,10 +33,30 @@ function userFor(req: Request): CopilotUser | undefined {
 type Dependencies = {
   resolveSecret: (value: string) => string | undefined;
   fetch?: typeof fetch;
+  evolutionStore?: EvolutionStore;
+  getAppConfig?: (options?: { baseOnly?: boolean }) => Promise<AppConfig>;
 };
 
 export function createCopilotRouter(deps: Dependencies): Router {
   const router = Router();
+  const getDeploymentConfig = async () =>
+    resolveCopilotConfig(
+      (await deps.getAppConfig?.({ baseOnly: true }))?.config?.copilot,
+      deps.resolveSecret,
+    );
+  const evolution =
+    deps.evolutionStore && deps.getAppConfig
+      ? createEvolutionService({ store: deps.evolutionStore, getConfig: getDeploymentConfig })
+      : undefined;
+  if (evolution)
+    registerShutdownTask(
+      'capability evolution',
+      startEvolutionScheduler(
+        evolution,
+        async () => (await getDeploymentConfig())?.evolution?.pollIntervalMs ?? 60000,
+      ),
+      { phase: 'pre-drain' },
+    );
   const configFor = (req: CopilotRequest) =>
     resolveCopilotConfig(req.config?.config?.copilot, deps.resolveSecret);
   const limiter = rateLimit({
@@ -53,6 +78,12 @@ export function createCopilotRouter(deps: Dependencies): Router {
       ready: enabled && !!config?.apiKey,
       generativeUI: enabled && config?.generativeUI === true,
       openDots: enabled && !!config && canUseDots(config, user!),
+      evolution:
+        enabled &&
+        !!evolution &&
+        config?.evolution?.enabled === true &&
+        config.evolution.ownerUserId === user?.id &&
+        config.evolution.tenantId === (user?.tenantId ?? ''),
       threadPrefix: user ? threadPrefix(user) : '',
     });
   });
@@ -65,7 +96,8 @@ export function createCopilotRouter(deps: Dependencies): Router {
     next();
   });
   router.use(limiter);
-  router.use('/runtime', (req: CopilotRequest, res, next) => {
+  if (evolution) router.use('/evolution', createEvolutionRouter(evolution));
+  router.use('/runtime', async (req: CopilotRequest, res, next) => {
     const config = configFor(req)!;
     if (!config.apiKey) {
       res.status(503).json({ code: 'COPILOT_SETUP_REQUIRED' });
@@ -82,7 +114,21 @@ export function createCopilotRouter(deps: Dependencies): Router {
     // stripped the mount path here. Its Fetch bridge also uses originalUrl.
     const mountedUrl = req.url;
     req.url = req.originalUrl;
-    createCopilotHandler(config, req.baseUrl)(req, res, (error) => {
+    let context = '';
+    try {
+      context = (await evolution?.runtimeContext(userFor(req)!)) ?? '';
+    } catch {
+      req.url = mountedUrl;
+      res.status(503).json({ code: 'EVOLUTION_CONTEXT_UNAVAILABLE' });
+      return;
+    }
+    createCopilotHandler(
+      config,
+      req.baseUrl,
+      evolution && context
+        ? { context, tools: evolutionTools(evolution, userFor(req)!) }
+        : undefined,
+    )(req, res, (error) => {
       req.url = mountedUrl;
       next(error);
     });

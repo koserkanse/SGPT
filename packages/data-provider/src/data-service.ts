@@ -18,6 +18,7 @@ import type {
 } from './types/traces';
 import type { TInsightsAccessResponse, TInsightsParams, TInsightsResponse } from './types/insights';
 import type { ScheduleMCPConsentView, ConfirmScheduleMCPConsent } from './types/scheduleConsent';
+import type { EvolutionStatus, EvolutionTopic } from './evolution';
 import type { TFileConfig } from './file-config';
 import type * as tl from './types/tools';
 import type * as t from './types';
@@ -39,6 +40,33 @@ import request from './request';
 
 export const getCopilotStatus = (): Promise<CopilotStatus> =>
   request.get(`${endpoints.copilot()}/status`);
+
+export const getEvolutionStatus = (): Promise<EvolutionStatus> =>
+  request.get(endpoints.evolution());
+export const runEvolution = (): Promise<{ id: string }> =>
+  request.post(`${endpoints.evolution()}/run`, {});
+export const cancelEvolution = (): Promise<{ ok: boolean }> =>
+  request.post(`${endpoints.evolution()}/cancel`, {});
+export const pauseEvolution = (paused: boolean): Promise<{ ok: boolean }> =>
+  request.post(`${endpoints.evolution()}/pause`, { paused });
+export const rollbackEvolution = (topic: EvolutionTopic): Promise<{ ok: boolean }> =>
+  request.post(`${endpoints.evolution()}/rollback`, { topic });
+export const learnEvolution = (lesson: {
+  topic: EvolutionTopic;
+  text: string;
+  supersedes?: string;
+}): Promise<{ ok: boolean }> => request.post(`${endpoints.evolution()}/lessons`, lesson);
+export const getEvolutionArtifact = async (id: string): Promise<{ blob: Blob; name: string }> => {
+  const response = await request.getResponse<Blob>(
+    `${endpoints.evolution()}/artifacts/${encodeURIComponent(id)}`,
+    { responseType: 'blob' },
+  );
+  const filename =
+    /filename="([a-zA-Z0-9._-]+)"/.exec(
+      String(response.headers['content-disposition'] ?? ''),
+    )?.[1] ?? 'artifact';
+  return { blob: response.data, name: filename };
+};
 
 export const getDotWorkspace = (): Promise<DotWorkspace> => request.get(endpoints.dotWorkspace());
 

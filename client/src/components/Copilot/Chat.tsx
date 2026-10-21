@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@librechat/client';
 import { apiBaseUrl } from 'librechat-data-provider';
 import { CopilotChat, CopilotKitProvider } from '@copilotkit/react-core/v2';
+import ArtifactTools from './ArtifactTools';
 import GenerativeTools from './Tools';
 import { useLocalize } from '~/hooks';
 import DotTools from './DotTools';
@@ -53,6 +54,7 @@ export default function Chat({
       >
         {generativeUI && <GenerativeTools />}
         {dotId && <DotTools threadId={threadId} />}
+        {!dotId && <ArtifactTools />}
         <CopilotChat
           agentId={dotId ?? 'default'}
           threadId={threadId}

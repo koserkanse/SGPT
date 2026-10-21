@@ -29,6 +29,8 @@ interface ConfigSecretField extends ConfigSecretFieldInput {
 const CONFIG_SECRET_FIELDS: readonly ConfigSecretField[] = (
   [
     { path: 'copilot.apiKey', allowEnvPlaceholder: true },
+    { path: 'copilot.evolution.apiKey', allowEnvPlaceholder: true },
+    { path: 'copilot.evolution.githubToken', allowEnvPlaceholder: true },
     { path: 'copilot.openDots.token', allowEnvPlaceholder: true },
     { path: 'langfuse.secretKey' },
     { path: 'ocr.apiKey', allowEnvPlaceholder: true },
