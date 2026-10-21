@@ -1,0 +1,45 @@
+# docker compose -f docker-compose.yml -f compose.copilot.yaml up --build -d
+services:
+  api:
+    image: sgpt:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./librechat.copilot.yaml:/app/librechat.yaml:ro
+    environment:
+      COPILOT_API_KEY: ${COPILOT_API_KEY:-}
+      OPENDOTS_OWNER_TOKEN: ${OPENDOTS_OWNER_TOKEN:?Set OPENDOTS_OWNER_TOKEN in .env}
+      OPENDOTS_OWNER_USER_ID: ${OPENDOTS_OWNER_USER_ID:?Set your LibreChat user ID in .env}
+    depends_on:
+      - opendots
+  opendots:
+    build:
+      context: ./integrations/opendots
+      target: app
+    ports:
+      - '127.0.0.1:4310:4310'
+    environment:
+      OWNER_TOKEN: ${OPENDOTS_OWNER_TOKEN:?Set OPENDOTS_OWNER_TOKEN in .env}
+      OWNER_ID: ${OPENDOTS_OWNER_USER_ID:?Set your LibreChat user ID in .env}
+      APP_ORIGIN: http://localhost:4310
+      CPK_INTELLIGENCE_API_KEY: ${CPK_INTELLIGENCE_API_KEY:-}
+      CPK_TELEMETRY_ID: ${CPK_TELEMETRY_ID:-}
+      INTELLIGENCE_API_URL: ${INTELLIGENCE_API_URL:-}
+      INTELLIGENCE_WS_URL: ${INTELLIGENCE_WS_URL:-}
+      OPENAI_API_KEY: ${OPENDOTS_MODEL_API_KEY:-}
+      OPENAI_MODEL: ${OPENDOTS_MODEL:-gpt-4.1-mini}
+      OPENAI_BASE_URL: ${OPENDOTS_MODEL_BASE_URL:-https://api.openai.com/v1}
+      WEB_SEARCH_PROVIDER: disabled
+      DO_NOT_TRACK: '1'
+      COPILOTKIT_TELEMETRY_DISABLED: 'true'
+    volumes:
+      - opendots-data:/data
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  opendots-data:

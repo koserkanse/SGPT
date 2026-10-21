@@ -1,3 +1,11 @@
+## SGPT fork
+
+This fork adds CopilotKit Generative UI and an authenticated OpenDots bridge at `/copilot`.
+See [setup, architecture, and verification](docs/COPILOT.md). OpenDots is pinned as a Git submodule;
+clone with `--recurse-submodules`.
+
+---
+
 <p align="center">
   <a href="https://librechat.ai">
     <img src="client/public/assets/logo.svg" height="256">

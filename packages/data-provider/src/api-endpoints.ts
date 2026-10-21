@@ -21,6 +21,11 @@ if (BASE_URL && BASE_URL.endsWith('/')) {
 
 export const apiBaseUrl = () => BASE_URL;
 
+export const copilot = () => `${BASE_URL}/api/copilot`;
+export const dotWorkspace = () => `${copilot()}/dots/workspace`;
+export const dotConversations = () => `${copilot()}/dots/conversations`;
+export const dotConversation = (id: string) => `${dotConversations()}/${encodeURIComponent(id)}`;
+
 // Testing this buildQuery function
 const buildQuery = (params: Record<string, unknown>): string => {
   const query = Object.entries(params)

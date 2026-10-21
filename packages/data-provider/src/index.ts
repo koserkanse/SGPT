@@ -3,6 +3,7 @@ export * from './azure';
 export * from './bedrock';
 export * from './balance';
 export * from './config';
+export * from './copilot';
 export * from './footer';
 export * from './theme';
 export * from './langchain';

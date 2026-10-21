@@ -45,6 +45,9 @@ const loadInsightsView = () =>
     Component: m.default,
   }));
 
+const loadCopilotView = () =>
+  importWithRecovery(() => import('~/components/Copilot')).then((m) => ({ Component: m.default }));
+
 const loadProjectsView = () =>
   importWithRecovery(() => import('~/components/Projects')).then((m) => ({
     Component: m.ProjectsView,
@@ -166,6 +169,7 @@ export const router = createBrowserRouter(
                   path: 'insights',
                   lazy: loadInsightsView,
                 },
+                { path: 'copilot', lazy: loadCopilotView },
                 {
                   path: 'skills/new',
                   lazy: loadSkillsView,

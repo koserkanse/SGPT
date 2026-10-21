@@ -119,6 +119,9 @@ export default defineConfig(({ command }) => ({
           'assets/rum.*.js',
           'assets/locale-*.js',
           'assets/query-devtools*.js',
+          // The optional Copilot SDK includes its own UI/sandbox runtime.
+          // Fetch it on demand instead of expanding the offline boot precache.
+          'assets/copilotkit*.js',
         ],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         /**
@@ -246,6 +249,21 @@ export default defineConfig(({ command }) => ({
               name(id: string) {
                 const normalizedId = id.replace(/\\/g, '/');
                 if (normalizedId.includes('node_modules')) {
+                  // Keep the optional agent UI out of LibreChat's boot vendor chunk.
+                  if (
+                    /\/node_modules\/(@copilotkit|@ag-ui|@jetbrains\/websandbox)\//.test(
+                      normalizedId,
+                    )
+                  ) {
+                    return 'copilotkit';
+                  }
+                  // Keep Shiki's optional language grammars out of the boot vendor chunk.
+                  if (/\/node_modules\/@shikijs\/(langs|themes)\//.test(normalizedId)) {
+                    return null;
+                  }
+                  if (/\/node_modules\/(@shikijs|shiki)\//.test(normalizedId)) {
+                    return 'copilotkit-highlight';
+                  }
                   if (normalizedId.includes('/node_modules/regenerator-runtime/')) {
                     return 'polyfills';
                   }

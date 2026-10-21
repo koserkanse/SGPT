@@ -1,4 +1,9 @@
 export enum QueryKeys {
+  copilotStatus = 'copilotStatus',
+  dotWorkspace = 'dotWorkspace',
+  dotReview = 'dotReview',
+  dotApproval = 'dotApproval',
+  dotActionReceipt = 'dotActionReceipt',
   messages = 'messages',
   /* Full content of one tool-call part, fetched when its preview is not enough */
   toolCallPart = 'toolCallPart',

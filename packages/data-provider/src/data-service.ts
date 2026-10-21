@@ -1,5 +1,15 @@
 import type { AxiosResponse } from 'axios';
 import type {
+  CopilotStatus,
+  DotWorkspace,
+  DotConversation,
+  DotDraft,
+  DotReview,
+  DotApproval,
+  DotActionReceipt,
+  DotActionResult,
+} from './copilot';
+import type {
   TTracePage,
   TTracePageParams,
   TTraceAvailability,
@@ -26,6 +36,45 @@ import * as sk from './types/skills';
 import * as f from './types/files';
 import * as config from './config';
 import request from './request';
+
+export const getCopilotStatus = (): Promise<CopilotStatus> =>
+  request.get(`${endpoints.copilot()}/status`);
+
+export const getDotWorkspace = (): Promise<DotWorkspace> => request.get(endpoints.dotWorkspace());
+
+export const createDotConversation = (dotId: string): Promise<DotConversation> =>
+  request.post(endpoints.dotConversations(), { dotId });
+
+export const getDotReview = (threadId: string, toolCallId: string): Promise<DotReview | null> =>
+  request.get(
+    `${endpoints.dotConversation(threadId)}/reviewed-page/${encodeURIComponent(toolCallId)}`,
+  );
+export const saveDotReview = (
+  threadId: string,
+  toolCallId: string,
+  draft: DotDraft,
+): Promise<DotReview> =>
+  request.post(`${endpoints.dotConversation(threadId)}/reviewed-page`, { ...draft, toolCallId });
+export const getDotApproval = (threadId: string, id: string): Promise<DotApproval> =>
+  request.get(
+    `${endpoints.dotConversation(threadId)}/connection-approvals/${encodeURIComponent(id)}`,
+  );
+export const getDotActionReceipt = (
+  threadId: string,
+  toolCallId: string,
+): Promise<DotActionReceipt | null> =>
+  request.get(
+    `${endpoints.dotConversation(threadId)}/connection-actions/${encodeURIComponent(toolCallId)}`,
+  );
+export const runDotAction = (
+  threadId: string,
+  toolCallId: string,
+  approvalId: string,
+): Promise<DotActionResult> =>
+  request.post(`${endpoints.dotConversation(threadId)}/connection-actions`, {
+    toolCallId,
+    approvalId,
+  });
 import * as s from './schemas';
 import * as r from './roles';
 

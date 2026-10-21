@@ -1,0 +1,3 @@
+[submodule "integrations/opendots"]
+	path = integrations/opendots
+	url = https://github.com/CopilotKit/OpenDots.git
