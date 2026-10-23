@@ -14,6 +14,7 @@ let isConfigSecretAncestorPath: typeof import('./secrets').isConfigSecretAncesto
 let isConfigSecretDescendantPath: typeof import('./secrets').isConfigSecretDescendantPath;
 let preserveConfigSecrets: typeof import('./secrets').preserveConfigSecrets;
 let redactConfigSecrets: typeof import('./secrets').redactConfigSecrets;
+let redactConfigSecretMaps: typeof import('./secrets').redactConfigSecretMaps;
 let resolveConfigSecret: typeof import('./secrets').resolveConfigSecret;
 let resolveCustomEndpointSecrets: typeof import('./secrets').resolveCustomEndpointSecrets;
 let decryptV3: typeof import('@librechat/data-schemas').decryptV3;
@@ -31,6 +32,7 @@ beforeAll(async () => {
     isConfigSecretDescendantPath,
     preserveConfigSecrets,
     redactConfigSecrets,
+    redactConfigSecretMaps,
     resolveConfigSecret,
     resolveCustomEndpointSecrets,
   } = await import('./secrets'));
@@ -283,6 +285,7 @@ describe('Langfuse config secrets', () => {
 describe('Config secret registry fields', () => {
   it('exposes the registered top-level sections', () => {
     expect([...getConfigSecretSections()].sort()).toEqual([
+      'copilot',
       'endpoints',
       'langfuse',
       'ocr',
@@ -987,4 +990,16 @@ describe('Custom endpoint config secrets', () => {
     const passthrough = { name: 'B', apiKey: 'user_provided' };
     expect(resolveCustomEndpointSecrets(passthrough)).toBe(passthrough);
   });
+});
+
+test('Copilot credentials are encrypted for storage and removed from admin reads and startup logs', () => {
+  const source = {
+    copilot: { apiKey: 'private-model-key', openDots: { token: 'private-owner-token' } },
+  };
+  const encrypted = encryptConfigSecrets(source);
+  expect(JSON.stringify(encrypted)).not.toContain('private-model-key');
+  expect(JSON.stringify(encrypted)).not.toContain('private-owner-token');
+  expect(JSON.stringify(redactConfigSecrets(structuredClone(source)))).not.toContain('private-');
+  expect(JSON.stringify(redactConfigSecretMaps(source))).not.toContain('private-');
+  expect(source.copilot.apiKey).toBe('private-model-key');
 });

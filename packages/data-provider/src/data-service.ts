@@ -1,5 +1,17 @@
 import type { AxiosResponse } from 'axios';
 import type {
+  CopilotStatus,
+  DotModelConnection,
+  DotModelSelection,
+  DotWorkspace,
+  DotConversation,
+  DotDraft,
+  DotReview,
+  DotApproval,
+  DotActionReceipt,
+  DotActionResult,
+} from './copilot';
+import type {
   TTracePage,
   TTracePageParams,
   TTraceAvailability,
@@ -8,6 +20,7 @@ import type {
 } from './types/traces';
 import type { TInsightsAccessResponse, TInsightsParams, TInsightsResponse } from './types/insights';
 import type { ScheduleMCPConsentView, ConfirmScheduleMCPConsent } from './types/scheduleConsent';
+import type { EvolutionStatus, EvolutionTopic } from './evolution';
 import type { TFileConfig } from './file-config';
 import type * as tl from './types/tools';
 import type * as t from './types';
@@ -26,6 +39,72 @@ import * as sk from './types/skills';
 import * as f from './types/files';
 import * as config from './config';
 import request from './request';
+
+export const getCopilotStatus = (): Promise<CopilotStatus> =>
+  request.get(`${endpoints.copilot()}/status`);
+
+export const getEvolutionStatus = (): Promise<EvolutionStatus> =>
+  request.get(endpoints.evolution());
+export const runEvolution = (): Promise<{ id: string }> =>
+  request.post(`${endpoints.evolution()}/run`, {});
+export const cancelEvolution = (): Promise<{ ok: boolean }> =>
+  request.post(`${endpoints.evolution()}/cancel`, {});
+export const pauseEvolution = (paused: boolean): Promise<{ ok: boolean }> =>
+  request.post(`${endpoints.evolution()}/pause`, { paused });
+export const rollbackEvolution = (topic: EvolutionTopic): Promise<{ ok: boolean }> =>
+  request.post(`${endpoints.evolution()}/rollback`, { topic });
+export const learnEvolution = (lesson: {
+  topic: EvolutionTopic;
+  text: string;
+  supersedes?: string;
+}): Promise<{ ok: boolean }> => request.post(`${endpoints.evolution()}/lessons`, lesson);
+export const getEvolutionArtifact = async (id: string): Promise<{ blob: Blob; name: string }> => {
+  const response = await request.getResponse<Blob>(
+    `${endpoints.evolution()}/artifacts/${encodeURIComponent(id)}`,
+    { responseType: 'blob' },
+  );
+  const filename =
+    /filename="([a-zA-Z0-9._-]+)"/.exec(
+      String(response.headers['content-disposition'] ?? ''),
+    )?.[1] ?? 'artifact';
+  return { blob: response.data, name: filename };
+};
+
+export const getDotWorkspace = (): Promise<DotWorkspace> => request.get(endpoints.dotWorkspace());
+
+export const createDotConversation = (dotId: string): Promise<DotConversation> =>
+  request.post(endpoints.dotConversations(), { dotId });
+
+export const getDotReview = (threadId: string, toolCallId: string): Promise<DotReview | null> =>
+  request.get(
+    `${endpoints.dotConversation(threadId)}/reviewed-page/${encodeURIComponent(toolCallId)}`,
+  );
+export const saveDotReview = (
+  threadId: string,
+  toolCallId: string,
+  draft: DotDraft,
+): Promise<DotReview> =>
+  request.post(`${endpoints.dotConversation(threadId)}/reviewed-page`, { ...draft, toolCallId });
+export const getDotApproval = (threadId: string, id: string): Promise<DotApproval> =>
+  request.get(
+    `${endpoints.dotConversation(threadId)}/connection-approvals/${encodeURIComponent(id)}`,
+  );
+export const getDotActionReceipt = (
+  threadId: string,
+  toolCallId: string,
+): Promise<DotActionReceipt | null> =>
+  request.get(
+    `${endpoints.dotConversation(threadId)}/connection-actions/${encodeURIComponent(toolCallId)}`,
+  );
+export const runDotAction = (
+  threadId: string,
+  toolCallId: string,
+  approvalId: string,
+): Promise<DotActionResult> =>
+  request.post(`${endpoints.dotConversation(threadId)}/connection-actions`, {
+    toolCallId,
+    approvalId,
+  });
 import * as s from './schemas';
 import * as r from './roles';
 
@@ -1864,3 +1943,10 @@ export function revokeScheduleMCPConsent(id: string, expectedRevision: string): 
     data: { expectedRevision },
   });
 }
+
+export const getDotModels = (): Promise<DotModelConnection[]> => request.get(endpoints.dotModels());
+export const setDotModel = ({
+  id,
+  ...selection
+}: DotModelSelection & { id: string }): Promise<DotWorkspace['dots'][number]> =>
+  request.put(endpoints.dotModel(id), selection);

@@ -1,0 +1,107 @@
+# Requirement matrix for ADR-001. Runtime configuration is copilot.evolution in librechat.yaml.
+version: 1
+implementationStatus: native-instruction-workflow-available
+schedule:
+  runsPerWeek: 2
+  timezone: Europe/Istanbul
+  proposedDays: [monday, thursday]
+  proposedLocalTime: '09:00'
+  exactTimesConfirmed: false
+research:
+  sources: [github, official-project-documentation]
+  track: [skills, plugins, mcp-servers, core-libraries]
+  require: [exact-commit, source-path, license, dated-evidence, runtime-compatibility]
+promotion:
+  mode: automatic-after-verified-improvement
+  sameEvaluationSuiteForIncumbentAndCandidate: true
+  requireMandatoryChecks: true
+  requireVerifiedUpdateAdapter: true
+  preservePreviousVersion: true
+  rollbackAfterFailedActivation: true
+  retainIncumbentWhenNoImprovement: true
+learning:
+  storageIndependentOfImplementation: true
+  scope: owner-and-tenant
+  retain: [preferences, successful-methods, corrections, failure-cases, templates]
+  requireEvidence: true
+  reevaluateAfterApplyingRetainedMethods: true
+topics:
+  - id: presentations
+    title: Sunum becerileri
+    priority: highest
+    researchTerms: [editable-pptx, presentation-generation, slide-layout, presentation-skills]
+    mandatoryChecks:
+      - Editable PPTX opens with text, charts and tables still editable.
+      - Rendered slides have no unintended clipping, overlap or missing glyphs.
+      - Numbers and narrative agree with the supplied source fixture.
+      - PDF export preserves layout, fonts and reading order expectations.
+      - A supplied brand template is preserved; Lena work uses original Lena assets.
+    comparisonMetrics: [task-pass-rate, visual-quality, editing-effort, latency, cost]
+  - id: finance
+    title: Finans becerileri
+    priority: highest
+    researchTerms: [financial-modeling, spreadsheet-skills, cash-flow, finance-mcp]
+    mandatoryChecks:
+      - Workbook recalculation agrees with deterministic reference answers.
+      - Formula dependencies, signs, units, currency and periods are consistent.
+      - Financial statements reconcile and cash movements balance.
+      - Scenario assumptions are explicit and propagate to dependent outputs.
+      - External figures have a source and date; fixture data is never presented as live data.
+    comparisonMetrics:
+      [numerical-correctness, reconciliation-pass-rate, traceability, latency, cost]
+  - id: generative-ui
+    title: Generative UI
+    priority: standard
+    researchTerms: [generative-ui, ag-ui, copilotkit, interactive-artifacts]
+    mandatoryChecks:
+      - Components satisfy the versioned data and tool contracts.
+      - Partial streaming, invalid arguments, errors and restored state behave correctly.
+      - Keyboard use, semantic labels, responsive layout and supported themes work.
+    comparisonMetrics: [task-pass-rate, interaction-quality, accessibility, latency, bundle-size]
+  - id: agents
+    title: Agent altyapısı
+    priority: standard
+    researchTerms: [agent-runtime, agent-orchestration, durable-agents, tool-calling]
+    mandatoryChecks:
+      - Tool contracts, cancellation, retry and timeout behavior pass the fixtures.
+      - A restart resumes or fails explicitly without duplicating external effects.
+      - Owner and tenant boundaries remain enforced throughout a task.
+    comparisonMetrics: [task-pass-rate, recovery-rate, tool-call-correctness, latency, cost]
+  - id: mcp
+    title: MCP entegrasyonları
+    priority: standard
+    researchTerms: [mcp-server, model-context-protocol, mcp-integration]
+    mandatoryChecks:
+      - Discovery and tool invocation pass tests against a real MCP client.
+      - Authentication, permission changes, expired sessions and disconnects are handled.
+      - Failed or repeated calls do not produce duplicate write effects.
+    comparisonMetrics: [contract-pass-rate, tool-coverage, reliability, latency, maintenance]
+  - id: memory
+    title: Kalıcı hafıza
+    priority: standard
+    researchTerms: [agent-memory, persistent-memory, memory-retrieval, knowledge-graph]
+    mandatoryChecks:
+      - Relevant retained facts are retrieved from labeled fixtures with provenance.
+      - Corrections supersede stale facts and deletion removes retrievable content.
+      - Knowledge survives restart and implementation replacement.
+      - Owner and tenant isolation tests pass.
+    comparisonMetrics: [retrieval-precision, retrieval-recall, correction-accuracy, latency, cost]
+  - id: documents
+    title: Doküman işleme
+    priority: standard
+    researchTerms: [document-parsing, ocr, pdf-extraction, docx-skills]
+    mandatoryChecks:
+      - Text, headings and tables match labeled PDF, DOCX and scanned fixtures.
+      - Turkish characters, reading order and page references are preserved.
+      - Unsupported or damaged documents produce explicit failure states.
+    comparisonMetrics: [extraction-accuracy, table-fidelity, citation-accuracy, latency, cost]
+  - id: sales-crm
+    title: Satış ve CRM becerileri
+    priority: standard
+    researchTerms: [crm-mcp, sales-skills, lead-enrichment, crm-integration]
+    mandatoryChecks:
+      - Account, contact and deal fields map correctly in a fixture CRM.
+      - Deduplication, retries and synchronization preserve record identity.
+      - Writes and communications respect the configured authorization policy.
+      - Research-derived fields retain source attribution.
+    comparisonMetrics: [task-pass-rate, field-accuracy, duplicate-rate, latency, cost]

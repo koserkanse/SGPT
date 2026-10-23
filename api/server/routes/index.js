@@ -18,6 +18,7 @@ const messages = require('./messages');
 const memories = require('./memories');
 const presets = require('./presets');
 const projects = require('./projects');
+const copilot = require('./copilot');
 const prompts = require('./prompts');
 const schedules = require('./schedules');
 const skills = require('./skills');
@@ -80,6 +81,7 @@ module.exports = {
   models,
   prompts,
   projects,
+  copilot,
   schedules,
   skills,
   actions,

@@ -1,0 +1,22 @@
+# Merge into the existing librechat.yaml; preserve Copilot/OpenDots/evolution settings.
+# HOME_MODEL_BASE_URL is a private OpenAI-compatible API URL ending in /v1.
+version: 1.3.17
+endpoints:
+  custom:
+    - name: Home Models
+      apiKey: not-required # Replace with '${HOME_MODEL_API_KEY}' if the server requires it.
+      baseURL: '${HOME_MODEL_BASE_URL}'
+      models:
+        default: [mlx-community/Qwen3-Coder-Next-4bit]
+        fetch: true
+      titleConvo: false
+      summarize: false
+      modelDisplayLabel: Home Models
+copilot:
+  enabled: true
+  model: mlx-community/Qwen3-Coder-Next-4bit
+  baseUrl: '${HOME_MODEL_BASE_URL}'
+  # Authentication is optional for a compatible server that does not require it.
+  # apiKey: '${HOME_MODEL_API_KEY}'
+  maxSteps: 8
+  maxOutputTokens: 2048

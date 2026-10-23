@@ -1,0 +1,19 @@
+/* Adapt the SDK's documented theme variables to LibreChat's semantic theme.
+   SDK components own their styles; app cards continue to use shared primitives. */
+[data-copilot-workspace] [data-copilotkit] {
+  --background: rgb(var(--surface-primary));
+  --foreground: rgb(var(--text-primary));
+  --primary: rgb(var(--text-primary));
+  --primary-foreground: rgb(var(--surface-primary));
+  --secondary: rgb(var(--surface-secondary));
+  --secondary-foreground: rgb(var(--text-primary));
+  --muted: rgb(var(--surface-secondary));
+  --muted-foreground: rgb(var(--text-secondary));
+  --accent: rgb(var(--surface-hover));
+  --accent-foreground: rgb(var(--text-primary));
+  --border: rgb(var(--border-light));
+  --input: rgb(var(--border-light));
+  --ring: rgb(var(--text-primary));
+  --popover: rgb(var(--surface-primary));
+  --popover-foreground: rgb(var(--text-primary));
+}

@@ -1,0 +1,19 @@
+name: sgpt-evolution
+services:
+  mongodb:
+    image: mongo:8.0.20
+    container_name: sgpt-evolution-mongo
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:27021:27017'
+    volumes:
+      - evolution-mongodb:/data/db
+    command: ['mongod', '--bind_ip_all', '--wiredTigerCacheSizeGB', '0.25']
+    logging:
+      driver: local
+      options:
+        max-size: '10m'
+        max-file: '2'
+volumes:
+  evolution-mongodb:
+    name: sgpt-evolution-mongodb

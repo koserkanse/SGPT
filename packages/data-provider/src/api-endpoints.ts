@@ -21,6 +21,12 @@ if (BASE_URL && BASE_URL.endsWith('/')) {
 
 export const apiBaseUrl = () => BASE_URL;
 
+export const copilot = () => `${BASE_URL}/api/copilot`;
+export const evolution = () => `${copilot()}/evolution`;
+export const dotWorkspace = () => `${copilot()}/dots/workspace`;
+export const dotConversations = () => `${copilot()}/dots/conversations`;
+export const dotConversation = (id: string) => `${dotConversations()}/${encodeURIComponent(id)}`;
+
 // Testing this buildQuery function
 const buildQuery = (params: Record<string, unknown>): string => {
   const query = Object.entries(params)
@@ -669,3 +675,6 @@ export const graphToken = (scopes: string) =>
   `${BASE_URL}/api/auth/graph-token?scopes=${encodeURIComponent(scopes)}`;
 
 export const resetToolApprovalGrants = (): string => `${BASE_URL}/api/agents/tools/approvals/reset`;
+
+export const dotModels = () => `${copilot()}/dots/models`;
+export const dotModel = (id: string) => `${copilot()}/dots/dots/${encodeURIComponent(id)}/model`;

@@ -28,6 +28,10 @@ interface ConfigSecretField extends ConfigSecretFieldInput {
  */
 const CONFIG_SECRET_FIELDS: readonly ConfigSecretField[] = (
   [
+    { path: 'copilot.apiKey', allowEnvPlaceholder: true },
+    { path: 'copilot.evolution.apiKey', allowEnvPlaceholder: true },
+    { path: 'copilot.evolution.githubToken', allowEnvPlaceholder: true },
+    { path: 'copilot.openDots.token', allowEnvPlaceholder: true },
     { path: 'langfuse.secretKey' },
     { path: 'ocr.apiKey', allowEnvPlaceholder: true },
     { path: 'speech.tts.openai.apiKey', allowEnvPlaceholder: true },
@@ -827,8 +831,8 @@ const MASKED_MAP_VALUE = '***';
  * "Custom config file loaded" log, which would otherwise copy every literal
  * gateway credential into application logs.
  *
- * Only handles map-valued secrets; scalar secrets keep whatever handling the
- * caller already applies.
+ * Also removes registered scalar credentials, while preserving environment
+ * references, so adding an integration cannot leak its keys into startup logs.
  */
 export function redactConfigSecretMaps<T>(root: T): T {
   const clone = JSON.parse(JSON.stringify(root)) as T;
@@ -836,8 +840,7 @@ export function redactConfigSecretMaps<T>(root: T): T {
   if (!rootRecord) {
     return clone;
   }
-  redactSecretMapFields(rootRecord);
-  return clone;
+  return redactConfigSecrets(clone);
 }
 
 function redactSecretMapFields(rootRecord: Record<string, unknown>): void {
