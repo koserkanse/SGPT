@@ -39,11 +39,35 @@ The native `/copilot` workspace has a separate deployment model:
 
 The native Copilot pane uses one deployment model. Use LibreChat Agent Builder for
 independent per-agent provider/model choices. OpenDots is a separate integration:
-its current pinned version uses a shared model configuration, with
-`OPENAI_BASE_URL`, `OPENAI_MODEL` and `OPENAI_API_KEY` in its own `.env`. Changing its
-model does not change its conversation backend. The SGPT OpenDots fork supports persistent
-local SQLite conversations without an Intelligence account; optional Intelligence mode
-requires its own explicit connection.
+its default model comes from `OPENAI_BASE_URL`, `OPENAI_MODEL` and `OPENAI_API_KEY`.
+Each Dot can now override that default through **OpenDots → Model settings** in
+SGPT, or its specialist settings in standalone OpenDots. Select a connection and
+model, then save. The selection persists in SQLite and applies to new interactive
+and scheduled turns. Changing it interrupts active work; use workspace default to
+restore inheritance. Missing connections or credentials fail explicitly without
+falling back to another provider. Existing profiles retain their default model.
+
+Connections are a server-managed allowlist. Add `OPENDOTS_MODEL_CONNECTIONS` to the
+ignored OpenDots `.env`, with JSON such as:
+
+```dotenv
+OPENDOTS_MODEL_CONNECTIONS='[{"id":"local","name":"Local server","location":"local","baseUrl":"http://127.0.0.1:1234/v1","models":["exact-loaded-model-id"]},{"id":"remote","name":"Remote provider","location":"remote","baseUrl":"https://api.openai.com/v1","models":["your-enabled-model-id"],"apiKeyEnv":"REMOTE_MODEL_KEY"}]'
+REMOTE_MODEL_KEY=your-server-side-key
+```
+
+Restart OpenDots after changing its connection catalog. `apiKeyEnv` references a
+server environment variable; omit it only for a model server that already accepts
+anonymous requests. Missing credentials disable that connection in the selector.
+The UI returns names, model IDs and readiness, never keys or endpoint URLs. Adding
+connections or credentials is an administrator setup step; assigning configured
+models to specialists is available directly in both interfaces. Use an
+OpenAI-compatible chat-completions endpoint for local or remote providers.
+
+Only list model IDs supported by that server. A catalog entry does not prove the
+model is loaded, capable of tools or suitable for a finance/presentation task.
+Remote selections send authorized conversation context to that model provider.
+The conversation backend stays independent: local SQLite needs no Intelligence
+account; optional Intelligence mode requires its own explicit connection.
 
 The evolution evaluator has its own `baseUrl`, `model` and `apiKey` fields. Point
 them at the chosen evaluator explicitly. An existing evaluation key can be inherited

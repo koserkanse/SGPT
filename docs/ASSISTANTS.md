@@ -23,7 +23,8 @@ token is read from the ignored environment and is never printed.
 These are OpenDots specialist agents. Their current pinned service shares its
 configured model. They do not automatically become LibreChat Agent Builder records,
 receive arbitrary machine access, or gain native Copilot's artifact/evolution tools.
-Use Agent Builder for independently selected providers/models; see [MODELS.md](MODELS.md).
+Use each OpenDots specialist’s Model settings to select a configured local or remote model.
+LibreChat Agent Builder also supports independent providers/models; see [MODELS.md](MODELS.md).
 A profile's requested workflow is not proof that a service or tool is connected.
 
 The SGPT OpenDots fork supports `CONVERSATION_BACKEND=local`: conversations,

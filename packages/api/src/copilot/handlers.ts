@@ -170,7 +170,7 @@ export function createCopilotRouter(deps: Dependencies): Router {
             ? 'text/event-stream, application/json'
             : 'application/json',
         },
-        body: req.method === 'POST' ? JSON.stringify(req.body) : undefined,
+        body: ['POST', 'PUT'].includes(req.method) ? JSON.stringify(req.body) : undefined,
         redirect: 'error',
         signal: AbortSignal.any([abort.signal, AbortSignal.timeout(config.timeoutMs)]),
       });

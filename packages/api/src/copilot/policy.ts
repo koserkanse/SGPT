@@ -104,7 +104,8 @@ export function isRuntimeRequestAllowed(
 
 /** Fixed upstream routes keep the bridge from becoming an arbitrary owner-token proxy. */
 export function isDotRequestAllowed(method: string, path: string): boolean {
-  if (method === 'GET' && path === '/workspace') return true;
+  if (method === 'GET' && (path === '/workspace' || path === '/models')) return true;
+  if (method === 'PUT' && /^\/dots\/[^/]+\/model$/.test(path)) return true;
   if (method === 'POST' && path === '/conversations') return true;
   if (
     method === 'GET' &&

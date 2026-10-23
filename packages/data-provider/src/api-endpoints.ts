@@ -675,3 +675,6 @@ export const graphToken = (scopes: string) =>
   `${BASE_URL}/api/auth/graph-token?scopes=${encodeURIComponent(scopes)}`;
 
 export const resetToolApprovalGrants = (): string => `${BASE_URL}/api/agents/tools/approvals/reset`;
+
+export const dotModels = () => `${copilot()}/dots/models`;
+export const dotModel = (id: string) => `${copilot()}/dots/dots/${encodeURIComponent(id)}/model`;

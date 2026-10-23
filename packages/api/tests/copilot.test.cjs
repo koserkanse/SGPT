@@ -32,9 +32,12 @@ test('real runtime discovery and OpenDots bridge enforce identity and preserve s
   upstream.use((req, res) => {
     requests.push({
       path: req.path,
+      body: req.body,
       authorization: req.headers.authorization,
       cookie: req.headers.cookie,
     });
+    if (req.path === '/api/models') return res.json([{ id: 'home', models: ['qwen'] }]);
+    if (req.method === 'PUT' && req.path === '/api/dots/scout/model') return res.json(req.body);
     if (req.path === '/api/workspace')
       return res.json({ spaces: [], dots: [], conversations: [], setup: { missing: [] } });
     if (req.path === '/api/copilotkit/agent/scout/run') {
@@ -95,6 +98,27 @@ test('real runtime discovery and OpenDots bridge enforce identity and preserve s
   assert.equal(workspace.status, 200);
   assert.equal(requests[0].authorization, 'Bearer test-owner-token-at-least-24-characters');
   assert.equal(requests[0].cookie, undefined);
+  assert.equal((await fetch(`${base}/api/copilot/dots/models`)).status, 200);
+  const selection = { modelConnectionId: 'home', modelId: 'qwen' };
+  const saved = await fetch(`${base}/api/copilot/dots/dots/scout/model`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(selection),
+  });
+  assert.equal(saved.status, 200);
+  assert.deepEqual(await saved.json(), selection);
+  const beforeDenied = requests.length;
+  assert.equal(
+    (
+      await fetch(`${base}/api/copilot/dots/dots/scout/model`, {
+        method: 'PUT',
+        headers: { 'test-user': 'other-admin', 'content-type': 'application/json' },
+        body: JSON.stringify(selection),
+      })
+    ).status,
+    403,
+  );
+  assert.equal(requests.length, beforeDenied);
   const stream = await fetch(`${base}/api/copilot/dots/runtime/agent/scout/run`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

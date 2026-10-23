@@ -119,6 +119,11 @@ test('SDK global routes and other tenants/users cannot access a thread', () => {
 
 test('only the intended OpenDots bridge surface is exposed', () => {
   expect(isDotRequestAllowed('GET', '/workspace')).toBe(true);
+  expect(isDotRequestAllowed('GET', '/models')).toBe(true);
+  expect(isDotRequestAllowed('PUT', '/dots/seko/model')).toBe(true);
+  expect(isDotRequestAllowed('PUT', '/dots/seko')).toBe(false);
+  expect(isDotRequestAllowed('POST', '/models')).toBe(false);
+  expect(isDotRequestAllowed('PUT', '/dots/seko/model/extra')).toBe(false);
   expect(isDotRequestAllowed('POST', '/runtime/agent/scout/run')).toBe(true);
   expect(isDotRequestAllowed('POST', '/conversations/thread/reviewed-page')).toBe(true);
   expect(isDotRequestAllowed('POST', '/conversations/thread/connection-actions')).toBe(true);

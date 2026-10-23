@@ -7,6 +7,7 @@ import OpenSidebar from '~/components/Chat/Menus/OpenSidebar';
 import { useAuthContext, useLocalize } from '~/hooks';
 import { useCopilotStatus } from './api';
 import Evolution from './Evolution';
+import Models from './Models';
 import Chat from './Chat';
 
 function Dots({
@@ -64,6 +65,7 @@ function Dots({
         {workspace.data?.dots.map((item) => (
           <div key={item.id} className="space-y-2">
             <h2 className="font-semibold">{item.name}</h2>
+            <Models key={item.id} dot={item} userId={userId} />
             <Button
               variant="outline"
               size="sm"

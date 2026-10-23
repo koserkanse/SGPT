@@ -3754,5 +3754,17 @@
   "com_copilot_select_dot": "Choose a Dot and open a conversation. Its work and approvals will appear here.",
   "com_copilot_disabled": "Copilot is not enabled for this account.",
   "com_copilot_setup_title": "Connect a model to start",
-  "com_copilot_setup": "Ask your administrator to configure the Copilot model connection, then retry."
+  "com_copilot_setup": "Ask your administrator to configure the Copilot model connection, then retry.",
+  "com_copilot_model_settings": "Model settings",
+  "com_copilot_model_help": "Used for this specialist’s chats and background tasks. Saving a different model stops active work. Remote models receive conversation context.",
+  "com_copilot_model_load_error": "Could not load model connections.",
+  "com_copilot_model_connection": "Connection",
+  "com_copilot_model_default": "Workspace default",
+  "com_copilot_model_unavailable": "Unavailable",
+  "com_copilot_model_local": "Local",
+  "com_copilot_model_remote": "Remote",
+  "com_copilot_model_name": "Model",
+  "com_copilot_model_saving": "Saving…",
+  "com_copilot_model_save_error": "Could not save. Retry or choose another model.",
+  "com_copilot_model_saved": "Model saved."
 }

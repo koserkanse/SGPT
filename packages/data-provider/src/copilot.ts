@@ -41,7 +41,14 @@ export type CopilotStatus = {
 };
 export type DotWorkspace = {
   spaces: { id: string; name: string; description: string }[];
-  dots: { id: string; name: string; instructions: string; spaceId: string }[];
+  dots: {
+    id: string;
+    name: string;
+    instructions: string;
+    spaceId: string;
+    modelConnectionId?: string | null;
+    modelId?: string | null;
+  }[];
   conversations: { id: string; dotId: string; title: string }[];
   setup: { missing: string[] };
 };
@@ -69,3 +76,12 @@ export type DotActionReceipt = {
   status: 'running' | 'done';
   result: DotActionResult | null;
 };
+
+export type DotModelConnection = {
+  id: string;
+  name: string;
+  location: 'default' | 'local' | 'remote';
+  models: string[];
+  ready: boolean;
+};
+export type DotModelSelection = { modelConnectionId: string | null; modelId: string | null };

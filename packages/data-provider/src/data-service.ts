@@ -1,6 +1,8 @@
 import type { AxiosResponse } from 'axios';
 import type {
   CopilotStatus,
+  DotModelConnection,
+  DotModelSelection,
   DotWorkspace,
   DotConversation,
   DotDraft,
@@ -1941,3 +1943,10 @@ export function revokeScheduleMCPConsent(id: string, expectedRevision: string): 
     data: { expectedRevision },
   });
 }
+
+export const getDotModels = (): Promise<DotModelConnection[]> => request.get(endpoints.dotModels());
+export const setDotModel = ({
+  id,
+  ...selection
+}: DotModelSelection & { id: string }): Promise<DotWorkspace['dots'][number]> =>
+  request.put(endpoints.dotModel(id), selection);
