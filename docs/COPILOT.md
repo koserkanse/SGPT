@@ -44,7 +44,7 @@ own request limit and explicitly authorized users.
 
 ## OpenDots
 
-The upstream source is pinned as `integrations/opendots`. It keeps its MIT license and
+The SGPT OpenDots fork is pinned as `integrations/opendots`. It keeps its MIT license and
 its own release history. See its [setup](../integrations/opendots/docs/SETUP.md) and
 [computer setup](../integrations/opendots/docs/COMPUTERS.md).
 
@@ -67,12 +67,14 @@ OPENDOTS_MODEL_API_KEY=
 OPENDOTS_MODEL=gpt-4.1-mini
 ```
 
-The OpenDots application is open source. Its conversation storage requires CopilotKit
-Intelligence: hosted, a local Docker evaluation, or licensed self-hosting. Obtain the
-project key and telemetry ID with the upstream setup workflow; do not paste credentials
-into this chat or commit them. A missing connection is displayed as a setup state.
+The OpenDots fork defaults to persistent local SQLite conversations. Set
+`OPENDOTS_CONVERSATION_BACKEND=local` in the root environment for the Docker overlay;
+standalone OpenDots uses `CONVERSATION_BACKEND=local`. This mode needs no CopilotKit
+account, project key or evaluation license. The open-source SDK still provides the
+UI and agent protocol. Intelligence is an optional explicit backend; do not use it
+when local account-free storage is required. Keep credentials in ignored files.
 
-For an independent development process, use the upstream source:
+For an independent development process, use the pinned fork:
 
 ```sh
 cd integrations/opendots
@@ -81,7 +83,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Set its `OWNER_ID`, `OWNER_TOKEN`, Intelligence connection, and model variables before
+Set its `OWNER_ID`, `OWNER_TOKEN`, conversation backend and model variables before
 starting conversations. The SDK version inside the pinned OpenDots app is managed by
 that app independently of the LibreChat integration.
 
@@ -94,8 +96,8 @@ docker compose -f docker-compose.yml -f compose.copilot.yaml up --build -d
 ```
 
 This builds the modified LibreChat source and the pinned OpenDots source. It persists
-OpenDots metadata in its own volume and binds the standalone workspace to loopback on
-port 4310. Model and Intelligence credentials are still required. Create/configure Dots
+OpenDots conversations and workspace data in its own volume and binds the standalone workspace to loopback on
+port 4310. Configure your model; no Intelligence credential is needed in local mode. Create/configure Dots
 through that standalone workspace, then open the OpenDots tab in LibreChat.
 
 Voice, channel configuration, document editing, and live computer takeover remain in
@@ -140,6 +142,6 @@ npm run lighthouse
 The runtime/bridge test uses the real CopilotKit runtime and a local HTTP fixture for the
 external OpenDots API. It verifies discovery, user/tenant boundaries, streaming, credential
 forwarding, forbidden routes, and safe error responses. It does not call a live model.
-Live model chat and durable OpenDots conversations require your own model and Intelligence
-credentials. Run `npx tsc --noEmit` in `client`, `packages/api`, and `packages/data-provider`
+Live model chat requires a working model endpoint. Local OpenDots conversations persist
+without Intelligence credentials. Run `npx tsc --noEmit` in `client`, `packages/api`, and `packages/data-provider`
 when changing these workspaces.

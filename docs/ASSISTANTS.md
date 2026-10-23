@@ -26,16 +26,17 @@ receive arbitrary machine access, or gain native Copilot's artifact/evolution to
 Use Agent Builder for independently selected providers/models; see [MODELS.md](MODELS.md).
 A profile's requested workflow is not proof that a service or tool is connected.
 
-OpenDots conversations require Intelligence in addition to a working model. For
-local evaluation, follow the pinned upstream setup guide and the CLI's actual
-readiness checks. An account and the user's acceptance of the current evaluation
-agreement are prerequisites. The CLI deliberately refuses to accept terms from a
-coding agent. Never replace that gate with an invented key or a simulated service.
+The SGPT OpenDots fork supports `CONVERSATION_BACKEND=local`: conversations,
+agent state, memory and task receipts persist in the local SQLite database without
+a CopilotKit account, project key or evaluation license. Native SGPT evolution
+learning remains in its separate local MongoDB store. Keep SQLite on a durable
+local disk, outside folders synchronized to cloud storage when local-only storage
+is required. Existing user data should be moved with SQLite's backup API.
 
-Local evaluation needs at least 4 Docker CPUs, 12 GiB RAM and 40 GiB free storage.
-The renewable evaluation license is not a production deployment. Pages, Dot
-profiles and Space configuration stay in the existing OpenDots SQLite database;
-conversation and automatic-learning storage is supplied by the selected Intelligence
-instance. Native SGPT evolution learning remains in its separate MongoDB store.
-Setting memory permissions or a learning-container ID does not create or verify the
-underlying service.
+Local preference tools can read, save and correct retained preferences when memory
+permission is enabled. Interrupted turns retain their history and error receipts;
+stale run writes are fenced and a repeated run ID does not execute its actions again.
+Hosted Automatic Learning, managed channels and other remote services are optional
+features, not substitutes for the local memory store. A model endpoint still has to
+be configured and verified. The open-source CopilotKit runtime is a software
+dependency; its hosted account and evaluation license are not required in local mode.

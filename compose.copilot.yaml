@@ -9,6 +9,8 @@ services:
       - ./librechat.copilot.yaml:/app/librechat.yaml:ro
     environment:
       COPILOT_API_KEY: ${COPILOT_API_KEY:-}
+      DO_NOT_TRACK: '1'
+      COPILOTKIT_TELEMETRY_DISABLED: 'true'
       OPENDOTS_OWNER_TOKEN: ${OPENDOTS_OWNER_TOKEN:?Set OPENDOTS_OWNER_TOKEN in .env}
       OPENDOTS_OWNER_USER_ID: ${OPENDOTS_OWNER_USER_ID:?Set your LibreChat user ID in .env}
     depends_on:
@@ -23,6 +25,7 @@ services:
       OWNER_TOKEN: ${OPENDOTS_OWNER_TOKEN:?Set OPENDOTS_OWNER_TOKEN in .env}
       OWNER_ID: ${OPENDOTS_OWNER_USER_ID:?Set your LibreChat user ID in .env}
       APP_ORIGIN: http://localhost:4310
+      CONVERSATION_BACKEND: ${OPENDOTS_CONVERSATION_BACKEND:-local}
       CPK_INTELLIGENCE_API_KEY: ${CPK_INTELLIGENCE_API_KEY:-}
       CPK_TELEMETRY_ID: ${CPK_TELEMETRY_ID:-}
       INTELLIGENCE_API_URL: ${INTELLIGENCE_API_URL:-}

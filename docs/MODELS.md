@@ -41,7 +41,9 @@ The native Copilot pane uses one deployment model. Use LibreChat Agent Builder f
 independent per-agent provider/model choices. OpenDots is a separate integration:
 its current pinned version uses a shared model configuration, with
 `OPENAI_BASE_URL`, `OPENAI_MODEL` and `OPENAI_API_KEY` in its own `.env`. Changing its
-model does not satisfy its separate Intelligence connection requirement.
+model does not change its conversation backend. The SGPT OpenDots fork supports persistent
+local SQLite conversations without an Intelligence account; optional Intelligence mode
+requires its own explicit connection.
 
 The evolution evaluator has its own `baseUrl`, `model` and `apiKey` fields. Point
 them at the chosen evaluator explicitly. An existing evaluation key can be inherited

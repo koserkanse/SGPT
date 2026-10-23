@@ -54,6 +54,10 @@ if (!process.argv.includes('--apply')) {
   console.log('Preview only. Add --apply to provision profiles in the existing local workspace.');
   process.exit(0);
 }
+const settings = z
+  .object({ settings: z.object({ name: z.string() }) })
+  .parse(await request('/state'));
+if (settings.settings.name === 'Dot') await request('/settings', { name: 'Seko' }, 'PATCH');
 let space = workspace.spaces.find((item) => item.name === catalog.space.name);
 space ??= spaceSchema.parse(await request('/spaces', catalog.space));
 const starterInstructions =
