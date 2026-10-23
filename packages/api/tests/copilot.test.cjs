@@ -114,3 +114,141 @@ test('real runtime discovery and OpenDots bridge enforce identity and preserve s
     403,
   );
 });
+
+test('compatible runtime preserves model routing and streams a tool call and its continuation', async () => {
+  const calls = [];
+  const model = express();
+  model.use(express.json());
+  model.post('/v1/chat/completions', (req, res) => {
+    calls.push({ body: req.body, authorization: req.headers.authorization });
+    const continuation = req.body.messages.some((message) => message.role === 'tool');
+    const delta = continuation
+      ? { role: 'assistant', content: 'Result: 42' }
+      : {
+          role: 'assistant',
+          tool_calls: [
+            {
+              index: 0,
+              id: 'fixture-call',
+              type: 'function',
+              function: { name: 'sgpt_add', arguments: '{"a":17,"b":25}' },
+            },
+          ],
+        };
+    res.setHeader('content-type', 'text/event-stream');
+    for (const choice of [
+      { index: 0, delta, finish_reason: null },
+      { index: 0, delta: {}, finish_reason: continuation ? 'stop' : 'tool_calls' },
+    ]) {
+      res.write(
+        `data: ${JSON.stringify({
+          id: 'fixture-completion',
+          object: 'chat.completion.chunk',
+          created: 1,
+          model: 'fixture-qwen',
+          choices: [choice],
+        })}\n\n`,
+      );
+    }
+    res.end('data: [DONE]\n\n');
+  });
+  const upstream = await serve(model);
+  const app = express();
+  app.use(express.json());
+  app.use((req, _res, next) => {
+    req.user = { id: 'owner', role: 'ADMIN', tenantId: 'tenant' };
+    req.config = {
+      config: {
+        copilot: {
+          enabled: true,
+          baseUrl: `${upstream}/v1`,
+          model: 'fixture-qwen',
+          maxSteps: 8,
+        },
+      },
+    };
+    next();
+  });
+  app.use('/api/copilot', createCopilotRouter({ resolveSecret: (value) => value }));
+  const base = await serve(app);
+  const status = await (await fetch(`${base}/api/copilot/status`)).json();
+  assert.equal(status.ready, true);
+  assert.equal(JSON.stringify(status).includes(upstream), false);
+  const messages = [{ id: 'user-message', role: 'user', content: 'Add 17 and 25 with sgpt_add.' }];
+  const tool = {
+    name: 'sgpt_add',
+    description: 'Add two integers',
+    parameters: {
+      type: 'object',
+      properties: { a: { type: 'integer' }, b: { type: 'integer' } },
+      required: ['a', 'b'],
+      additionalProperties: false,
+    },
+  };
+  async function run(id, runMessages) {
+    const result = await fetch(`${base}/api/copilot/runtime/agent/default/run`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+      body: JSON.stringify({
+        threadId: 'tenant:owner:compatible-test',
+        runId: id,
+        state: {},
+        messages: runMessages,
+        tools: [tool],
+        context: [],
+        forwardedProps: { model: 'untrusted-model-override', apiKey: 'untrusted-key-override' },
+      }),
+    });
+    assert.equal(result.status, 200);
+    const text = await result.text();
+    const events = text
+      .split('\n')
+      .filter((line) => line.startsWith('data: '))
+      .map((line) => JSON.parse(line.slice(6)));
+    assert.equal(
+      events.some((event) => event.type === 'RUN_ERROR'),
+      false,
+      text,
+    );
+    return events;
+  }
+  const first = await run('first-run', messages);
+  assert(
+    first.some((event) => event.type === 'TOOL_CALL_START' && event.toolCallName === 'sgpt_add'),
+  );
+  const args = first
+    .filter((event) => event.type === 'TOOL_CALL_ARGS')
+    .map((event) => event.delta)
+    .join('');
+  const { a, b } = JSON.parse(args);
+  assert.equal(a + b, 42);
+  const second = await run('second-run', [
+    ...messages,
+    {
+      id: 'assistant-message',
+      role: 'assistant',
+      toolCalls: [
+        {
+          id: 'fixture-call',
+          type: 'function',
+          function: { name: 'sgpt_add', arguments: args },
+        },
+      ],
+    },
+    { id: 'tool-message', role: 'tool', toolCallId: 'fixture-call', content: String(a + b) },
+  ]);
+  assert.equal(
+    second
+      .filter((event) => event.type === 'TEXT_MESSAGE_CONTENT')
+      .map((event) => event.delta)
+      .join(''),
+    'Result: 42',
+  );
+  assert.equal(calls.length, 2);
+  for (const call of calls) {
+    assert.equal(call.body.model, 'fixture-qwen');
+    assert.equal(call.body.stream, true);
+    assert.equal(call.authorization, 'Bearer not-required');
+    assert.equal(JSON.stringify(call).includes('untrusted-key-override'), false);
+  }
+});

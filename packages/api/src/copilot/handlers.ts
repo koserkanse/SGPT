@@ -9,6 +9,7 @@ import {
   canUseDots,
   threadPrefix,
   canUseCopilot,
+  hasCopilotModel,
   resolveCopilotConfig,
   isDotRequestAllowed,
   isRuntimeRequestAllowed,
@@ -75,7 +76,7 @@ export function createCopilotRouter(deps: Dependencies): Router {
     res.setHeader('Cache-Control', 'no-store');
     res.json({
       enabled,
-      ready: enabled && !!config?.apiKey,
+      ready: enabled && hasCopilotModel(config),
       generativeUI: enabled && config?.generativeUI === true,
       openDots: enabled && !!config && canUseDots(config, user!),
       evolution:
@@ -99,7 +100,7 @@ export function createCopilotRouter(deps: Dependencies): Router {
   if (evolution) router.use('/evolution', createEvolutionRouter(evolution));
   router.use('/runtime', async (req: CopilotRequest, res, next) => {
     const config = configFor(req)!;
-    if (!config.apiKey) {
+    if (!hasCopilotModel(config)) {
       res.status(503).json({ code: 'COPILOT_SETUP_REQUIRED' });
       return;
     }

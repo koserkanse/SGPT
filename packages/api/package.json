@@ -176,6 +176,7 @@
     "zod": "^3.22.4"
   },
   "dependencies": {
+    "@ai-sdk/openai": "3.0.131",
     "@copilotkit/runtime": "1.79.1",
     "@langchain/langgraph-checkpoint": "^1.1.2",
     "@langchain/langgraph-checkpoint-mongodb": "^1.4.0",

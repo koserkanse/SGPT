@@ -15,6 +15,24 @@ export function resolveCopilotConfig(
     return result && !result.includes('${') && result !== 'user_provided' ? result : undefined;
   };
   config.apiKey = config.apiKey ? resolve(config.apiKey) : undefined;
+  if (config.baseUrl) {
+    const value = resolve(config.baseUrl);
+    if (!value) return undefined;
+    try {
+      const url = new URL(value);
+      if (
+        !['http:', 'https:'].includes(url.protocol) ||
+        url.username ||
+        url.password ||
+        url.search ||
+        url.hash
+      )
+        return undefined;
+      config.baseUrl = url.toString().replace(/\/$/, '');
+    } catch {
+      return undefined;
+    }
+  }
   if (config.evolution) {
     config.evolution.apiKey = config.evolution.apiKey
       ? resolve(config.evolution.apiKey)
@@ -35,6 +53,11 @@ export function resolveCopilotConfig(
     }
   }
   return config;
+}
+
+/** Compatible servers may intentionally have no API authentication. */
+export function hasCopilotModel(config?: CopilotConfig): boolean {
+  return !!config && !!(config.baseUrl || config.apiKey);
 }
 
 export function canUseCopilot(config: CopilotConfig | undefined, user?: CopilotUser): boolean {

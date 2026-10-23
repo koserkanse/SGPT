@@ -1,3 +1,4 @@
+import { createOpenAI } from '@ai-sdk/openai';
 import { createCopilotExpressHandler } from '@copilotkit/runtime/v2/express';
 import { BuiltInAgent, CopilotRuntime, InMemoryAgentRunner } from '@copilotkit/runtime/v2';
 import type { CopilotConfig } from 'librechat-data-provider';
@@ -11,8 +12,15 @@ export function createCopilotHandler(
   const runtime = new CopilotRuntime({
     agents: () => ({
       default: new BuiltInAgent({
-        model: config.model,
+        model: config.baseUrl
+          ? createOpenAI({
+              baseURL: config.baseUrl,
+              apiKey: config.apiKey ?? 'not-required',
+            }).chat(config.model)
+          : config.model,
         apiKey: config.apiKey,
+        maxSteps: config.maxSteps,
+        maxOutputTokens: config.maxOutputTokens,
         overridableProperties: [],
         tools: evolution?.tools,
         prompt:

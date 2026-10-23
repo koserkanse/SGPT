@@ -1,6 +1,7 @@
 import { copilotConfigSchema } from 'librechat-data-provider';
 import {
   canUseCopilot,
+  hasCopilotModel,
   canUseDots,
   resolveCopilotConfig,
   isRuntimeRequestAllowed,
@@ -12,6 +13,36 @@ const owner = { id: 'owner', role: 'ADMIN', tenantId: 'tenant-a' };
 const config = copilotConfigSchema.parse({
   enabled: true,
   openDots: { url: 'http://127.0.0.1:4310', ownerUserId: owner.id, token: 'a'.repeat(32) },
+});
+
+test('compatible servers resolve trusted URLs and can use optional authentication', () => {
+  const input = { enabled: true, baseUrl: '${HOME_URL}', model: 'fixture-qwen' };
+  const resolved = resolveCopilotConfig(input, (value) =>
+    value === '${HOME_URL}' ? 'http://127.0.0.1:1234/v1/' : value,
+  );
+  expect(resolved?.baseUrl).toBe('http://127.0.0.1:1234/v1');
+  expect(resolved?.apiKey).toBeUndefined();
+  expect(hasCopilotModel(resolved)).toBe(true);
+  expect(hasCopilotModel(config)).toBe(false);
+  expect(hasCopilotModel({ ...config, apiKey: 'fixture' })).toBe(true);
+  expect(resolveCopilotConfig(input, (value) => value)).toBeUndefined();
+});
+
+test.each([
+  'file:///tmp/model',
+  'ftp://example.test/v1',
+  'https://user:secret@example.test/v1',
+  'https://example.test/v1?key=secret',
+  'https://example.test/v1#secret',
+  'not-a-url',
+])('invalid compatible endpoint fails closed: %s', (baseUrl) => {
+  expect(resolveCopilotConfig({ enabled: true, baseUrl }, (value) => value)).toBeUndefined();
+});
+
+test('tool steps and output tokens have bounded configurable limits', () => {
+  expect(copilotConfigSchema.parse({}).maxSteps).toBe(1);
+  expect(copilotConfigSchema.safeParse({ maxSteps: 21 }).success).toBe(false);
+  expect(copilotConfigSchema.safeParse({ maxOutputTokens: 32769 }).success).toBe(false);
 });
 
 test('evolution resolves its own secrets, inherits the model key and disables unresolved owners', () => {

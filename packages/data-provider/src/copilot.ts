@@ -6,8 +6,12 @@ export const copilotConfigSchema = z
     enabled: z.boolean().default(false),
     allowedUserIds: z.array(z.string().min(1)).default([]),
     model: z.string().min(1).default('openai/gpt-4.1-mini'),
+    /** Trusted deployment URL for an OpenAI-compatible server; supports env references. */
+    baseUrl: z.string().min(1).max(2048).optional(),
     apiKey: z.string().optional(),
     apiKeyPreview: z.string().optional(),
+    maxSteps: z.number().int().min(1).max(20).default(1),
+    maxOutputTokens: z.number().int().min(128).max(32768).optional(),
     generativeUI: z.boolean().default(true),
     requestsPerMinute: z.number().int().min(1).max(300).default(20),
     timeoutMs: z.number().int().min(1000).max(300000).default(120000),

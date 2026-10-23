@@ -20,6 +20,10 @@ Configure a MongoDB connection in `.env` and set `COPILOT_API_KEY` to the key fo
 configured model. The `copilot.model` value uses CopilotKit's `provider/model` syntax.
 Credentials stay on the server; they are never returned by the status endpoint.
 
+For local/home-hosted OpenAI-compatible servers and independent LibreChat agent
+model choices, see [model connections](MODELS.md). `copilot.baseUrl` selects an
+exact server model ID and supports servers without API authentication.
+
 For Copilot without OpenDots, remove `copilot.openDots` from your local `librechat.yaml`.
 For OpenDots on the same host, change its URL to `http://127.0.0.1:4310` in that file.
 The checked-in configuration uses Docker's service name.
