@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { useRenderTool } from '@copilotkit/react-core/v2';
 import { ArtifactDownload } from './Evolution';
 import { useLocalize } from '~/hooks';

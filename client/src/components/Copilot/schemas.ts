@@ -1,4 +1,5 @@
-import { z } from 'zod/v4';
+// The pinned CopilotKit serializer requires the root Zod 3 entry point.
+import { z } from 'zod';
 
 export const tableSchema = z.object({
   title: z.string().max(160),
